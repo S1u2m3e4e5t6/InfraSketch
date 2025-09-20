@@ -93,6 +93,12 @@ This document describes the high-level architecture of our system.
     setDiagramState(prev => ({ ...prev, documentation: doc }));
   }, []);
 
+  const handleNodesGenerate = useCallback((newNodes: Node[]) => {
+    setDiagramState(prev => ({
+      ...prev,
+      nodes: [...prev.nodes, ...newNodes],
+    }));
+  }, []);
   return (
     <div className="h-screen overflow-hidden relative">
       <StarfallBackground />
@@ -188,6 +194,7 @@ This document describes the high-level architecture of our system.
           <DocumentationPanel
             documentation={diagramState.documentation}
             onDocumentationChange={handleDocumentationChange}
+            onNodesGenerate={handleNodesGenerate}
           />
         </motion.div>
       </div>

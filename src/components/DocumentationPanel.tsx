@@ -1,15 +1,19 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, MessageSquare, Send, Bot, Download, Save } from 'lucide-react';
+import { Node, Tool } from '../types';
+import { getAllTools } from '../utils/tools';
 
 interface DocumentationPanelProps {
   documentation: string;
   onDocumentationChange: (doc: string) => void;
+  onNodesGenerate: (nodes: Node[]) => void;
 }
 
 const DocumentationPanel: React.FC<DocumentationPanelProps> = ({
   documentation,
   onDocumentationChange,
+  onNodesGenerate,
 }) => {
   const [activeTab, setActiveTab] = useState<'edit' | 'preview' | 'ai'>('edit');
   const [aiInput, setAiInput] = useState('');
@@ -17,11 +21,278 @@ const DocumentationPanel: React.FC<DocumentationPanelProps> = ({
     {
       id: 1,
       type: 'assistant',
-      content: '👋 Hi! I can help you generate diagrams and documentation. Try asking me to "Generate a scalable e-commerce architecture" or "Create documentation for a microservices setup".'
+      content: '👋 Hi! I can help you generate diagrams and documentation. Try asking me:\n\n• "Design a scalable e-commerce infrastructure"\n• "Create a microservices architecture"\n• "Build a cloud-native application setup"\n• "Design a Kubernetes deployment"\n\nI\'ll create the nodes on your canvas automatically!'
     }
   ]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const generateInfrastructure = (prompt: string): { nodes: Node[], documentation: string } => {
+    const allTools = getAllTools();
+    const nodes: Node[] = [];
+    let documentation = '';
+
+    const promptLower = prompt.toLowerCase();
+
+    if (promptLower.includes('e-commerce') || promptLower.includes('ecommerce')) {
+      // E-commerce architecture
+      const positions = [
+        { x: 100, y: 100 }, { x: 300, y: 100 }, { x: 500, y: 100 },
+        { x: 100, y: 250 }, { x: 300, y: 250 }, { x: 500, y: 250 },
+        { x: 100, y: 400 }, { x: 300, y: 400 }, { x: 500, y: 400 }
+      ];
+
+      const ecommerceNodes = [
+        { tool: 'load-balancer', label: 'Load Balancer', pos: 0 },
+        { tool: 'api-gateway', label: 'API Gateway', pos: 1 },
+        { tool: 'cdn', label: 'CDN', pos: 2 },
+        { tool: 'aws-ec2', label: 'Web Servers', pos: 3 },
+        { tool: 'aws-lambda', label: 'Order Service', pos: 4 },
+        { tool: 'aws-lambda', label: 'Payment Service', pos: 5 },
+        { tool: 'entity', label: 'User DB', pos: 6 },
+        { tool: 'entity', label: 'Product DB', pos: 7 },
+        { tool: 'message-queue', label: 'Message Queue', pos: 8 }
+      ];
+
+      ecommerceNodes.forEach(({ tool, label, pos }) => {
+        const toolData = allTools.find(t => t.id === tool);
+        if (toolData) {
+          nodes.push({
+            id: `node-${Date.now()}-${pos}`,
+            type: toolData.id,
+            category: toolData.category,
+            position: positions[pos],
+            size: { width: 140, height: 70 },
+            label,
+            style: {
+              backgroundColor: toolData.color + '20',
+              borderColor: toolData.color,
+              color: '#ffffff',
+            },
+          });
+        }
+      });
+
+      documentation = `# E-commerce Infrastructure Architecture
+
+## Overview
+Scalable e-commerce platform designed for high availability and performance.
+
+## Components
+
+### Frontend Layer
+- **CDN**: Global content delivery for static assets
+- **Load Balancer**: Distributes traffic across web servers
+
+### Application Layer
+- **API Gateway**: Central entry point for all API requests
+- **Web Servers**: Handle user interface and business logic
+- **Microservices**: Order and Payment processing services
+
+### Data Layer
+- **User Database**: Customer profiles and authentication
+- **Product Database**: Catalog and inventory management
+- **Message Queue**: Asynchronous processing and notifications
+
+## Scalability Features
+- Auto-scaling web servers
+- Database read replicas
+- Caching layers
+- Microservices architecture`;
+
+    } else if (promptLower.includes('microservices')) {
+      // Microservices architecture
+      const positions = [
+        { x: 200, y: 80 }, { x: 100, y: 200 }, { x: 300, y: 200 },
+        { x: 500, y: 200 }, { x: 100, y: 350 }, { x: 300, y: 350 },
+        { x: 500, y: 350 }
+      ];
+
+      const microservicesNodes = [
+        { tool: 'api-gateway', label: 'API Gateway', pos: 0 },
+        { tool: 'aws-lambda', label: 'User Service', pos: 1 },
+        { tool: 'aws-lambda', label: 'Product Service', pos: 2 },
+        { tool: 'aws-lambda', label: 'Order Service', pos: 3 },
+        { tool: 'entity', label: 'User DB', pos: 4 },
+        { tool: 'entity', label: 'Product DB', pos: 5 },
+        { tool: 'message-queue', label: 'Event Bus', pos: 6 }
+      ];
+
+      microservicesNodes.forEach(({ tool, label, pos }) => {
+        const toolData = allTools.find(t => t.id === tool);
+        if (toolData) {
+          nodes.push({
+            id: `node-${Date.now()}-${pos}`,
+            type: toolData.id,
+            category: toolData.category,
+            position: positions[pos],
+            size: { width: 140, height: 70 },
+            label,
+            style: {
+              backgroundColor: toolData.color + '20',
+              borderColor: toolData.color,
+              color: '#ffffff',
+            },
+          });
+        }
+      });
+
+      documentation = `# Microservices Architecture
+
+## Overview
+Distributed system architecture with loosely coupled services.
+
+## Services
+
+### API Gateway
+- Request routing and load balancing
+- Authentication and authorization
+- Rate limiting and monitoring
+
+### Core Services
+- **User Service**: Account management and profiles
+- **Product Service**: Catalog and inventory
+- **Order Service**: Order processing and fulfillment
+
+### Data Management
+- Database per service pattern
+- Event-driven communication
+- Eventual consistency model
+
+## Benefits
+- Independent deployment and scaling
+- Technology diversity
+- Fault isolation
+- Team autonomy`;
+
+    } else if (promptLower.includes('kubernetes') || promptLower.includes('k8s')) {
+      // Kubernetes architecture
+      const positions = [
+        { x: 150, y: 80 }, { x: 350, y: 80 }, { x: 100, y: 200 },
+        { x: 300, y: 200 }, { x: 500, y: 200 }, { x: 200, y: 350 }
+      ];
+
+      const k8sNodes = [
+        { tool: 'load-balancer', label: 'Ingress', pos: 0 },
+        { tool: 'service', label: 'Service', pos: 1 },
+        { tool: 'deployment', label: 'Frontend', pos: 2 },
+        { tool: 'deployment', label: 'Backend', pos: 3 },
+        { tool: 'pod', label: 'Database', pos: 4 },
+        { tool: 'message-queue', label: 'ConfigMap', pos: 5 }
+      ];
+
+      k8sNodes.forEach(({ tool, label, pos }) => {
+        const toolData = allTools.find(t => t.id === tool);
+        if (toolData) {
+          nodes.push({
+            id: `node-${Date.now()}-${pos}`,
+            type: toolData.id,
+            category: toolData.category,
+            position: positions[pos],
+            size: { width: 140, height: 70 },
+            label,
+            style: {
+              backgroundColor: toolData.color + '20',
+              borderColor: toolData.color,
+              color: '#ffffff',
+            },
+          });
+        }
+      });
+
+      documentation = `# Kubernetes Deployment Architecture
+
+## Overview
+Container orchestration platform for scalable applications.
+
+## Components
+
+### Ingress Layer
+- **Ingress Controller**: External traffic routing
+- **Load Balancer**: Traffic distribution
+
+### Application Layer
+- **Services**: Internal service discovery
+- **Deployments**: Application workload management
+- **Pods**: Container runtime environment
+
+### Configuration
+- **ConfigMaps**: Application configuration
+- **Secrets**: Sensitive data management
+- **Persistent Volumes**: Data storage
+
+## Features
+- Auto-scaling and self-healing
+- Rolling updates and rollbacks
+- Service mesh integration
+- Multi-environment support`;
+
+    } else {
+      // Generic cloud infrastructure
+      const positions = [
+        { x: 100, y: 100 }, { x: 300, y: 100 }, { x: 500, y: 100 },
+        { x: 200, y: 250 }, { x: 400, y: 250 }, { x: 300, y: 400 }
+      ];
+
+      const genericNodes = [
+        { tool: 'load-balancer', label: 'Load Balancer', pos: 0 },
+        { tool: 'aws-ec2', label: 'App Servers', pos: 1 },
+        { tool: 'cdn', label: 'CDN', pos: 2 },
+        { tool: 'entity', label: 'Database', pos: 3 },
+        { tool: 'aws-s3', label: 'File Storage', pos: 4 },
+        { tool: 'firewall', label: 'Security', pos: 5 }
+      ];
+
+      genericNodes.forEach(({ tool, label, pos }) => {
+        const toolData = allTools.find(t => t.id === tool);
+        if (toolData) {
+          nodes.push({
+            id: `node-${Date.now()}-${pos}`,
+            type: toolData.id,
+            category: toolData.category,
+            position: positions[pos],
+            size: { width: 140, height: 70 },
+            label,
+            style: {
+              backgroundColor: toolData.color + '20',
+              borderColor: toolData.color,
+              color: '#ffffff',
+            },
+          });
+        }
+      });
+
+      documentation = `# Cloud Infrastructure Architecture
+
+## Overview
+Modern cloud-native infrastructure for scalable applications.
+
+## Components
+
+### Frontend
+- **CDN**: Global content delivery network
+- **Load Balancer**: High availability traffic distribution
+
+### Compute
+- **Application Servers**: Scalable compute instances
+- **Auto-scaling**: Dynamic resource allocation
+
+### Storage
+- **Database**: Managed database service
+- **File Storage**: Object storage for assets
+
+### Security
+- **Firewall**: Network security and access control
+- **SSL/TLS**: Encrypted data transmission
+
+## Best Practices
+- Infrastructure as Code
+- Monitoring and logging
+- Backup and disaster recovery
+- Cost optimization`;
+    }
+
+    return { nodes, documentation };
+  };
   const handleAiSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!aiInput.trim()) return;
@@ -32,10 +303,25 @@ const DocumentationPanel: React.FC<DocumentationPanelProps> = ({
       content: aiInput
     };
 
+    // Generate infrastructure based on the prompt
+    const { nodes, documentation: generatedDocs } = generateInfrastructure(aiInput);
+    
+    // Add nodes to canvas
+    if (nodes.length > 0) {
+      onNodesGenerate(nodes);
+    }
+    
+    // Update documentation
+    if (generatedDocs) {
+      onDocumentationChange(generatedDocs);
+    }
+
     const assistantMessage = {
       id: Date.now() + 1,
       type: 'assistant',
-      content: `I'll help you with "${aiInput}". Here's a suggested approach:\n\n1. **Architecture Overview**: Start with the main components\n2. **Data Flow**: Define how information moves through the system\n3. **Security Considerations**: Implement proper authentication and authorization\n4. **Scalability**: Consider load balancing and caching strategies\n\nWould you like me to generate specific nodes for your diagram?`
+      content: `✨ I've generated a ${aiInput.toLowerCase().includes('e-commerce') ? 'scalable e-commerce' : 
+                                    aiInput.toLowerCase().includes('microservices') ? 'microservices' :
+                                    aiInput.toLowerCase().includes('kubernetes') ? 'Kubernetes' : 'cloud'} architecture for you!\n\n🎯 **What I created:**\n• ${nodes.length} infrastructure components on your canvas\n• Complete documentation with architecture overview\n• Best practices and scalability considerations\n\nYou can now:\n• Drag nodes to reposition them\n• Connect components with arrows\n• Edit the documentation as needed\n• Ask me to modify or extend the architecture!`
     };
 
     setAiMessages(prev => [...prev, userMessage, assistantMessage]);

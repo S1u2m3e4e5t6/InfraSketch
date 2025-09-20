@@ -101,3 +101,20 @@ The AI will generate the corresponding nodes on the canvas and provide detailed 
 Contributing
 
 Contributions are welcome! If you have any ideas, suggestions, or bug reports, please open an issue or submit a pull request.
+
+
+
+
+
+
+
+resume 
+```
+Architected and launched InfraSketch, a real-time, collaborative web application for designing and documenting complex system architectures.
+
+Engineered a feature-rich, interactive canvas with a diverse tools palette for various diagram types including cloud infrastructure (AWS, Azure, GCP) and Kubernetes.
+
+Implemented an innovative AI-powered feature to generate detailed diagrams and documentation automatically from natural language prompts, significantly accelerating the design process.
+
+skills: React, TypeScript, Vite, Framer Motion, Tailwind CSS, Supabase, Node.js
+```
